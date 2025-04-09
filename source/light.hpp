@@ -23,5 +23,3 @@ class LightSource {
     static constexpr glm::vec3 DEFAULT_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
     static constexpr glm::vec3 ORIGIN = glm::vec3(0.0f, 0.0f, 0.0f);
 };
-
-LightSource currentLight;
