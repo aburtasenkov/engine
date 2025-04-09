@@ -75,14 +75,14 @@ int main() {
   glEnableVertexAttribArray(0);
 
   // Load  Shader
-  unsigned int objectShader = linkShaders("shaders/vertex_object.vs", "shaders/fragment_object.fs");
+  Shader objectShader{"shaders/vertex_object.vs", "shaders/fragment_object.fs"};
 
   // Load Light Shader
-  unsigned int lightShader = linkShaders("shaders/vertex_object.vs", "shaders/fragment_light.fs");
+  Shader lightShader{"shaders/vertex_object.vs", "shaders/fragment_light.fs"};
 
   // Load texture
   loadTextureJPG("textures/gold.jpg", GL_TEXTURE0);
-  int textureUniformId = glGetUniformLocation(objectShader, "material.diffuse");
+  int textureUniformId = glGetUniformLocation(objectShader.shaderID, "material.diffuse");
   glUniform1i(textureUniformId, 0);
 
   glm::vec3 cubePositions[] = {
@@ -101,21 +101,21 @@ int main() {
   while (engine.run()) {
     engine.currentLight.updatePos(glm::vec3{(float)cos(glfwGetTime()) * 10, 2.0f, (float)sin(glfwGetTime()) * 10});
   
-    updateFragmentShaderUniforms(objectShader, engine.currentCam, engine.currentLight);
+    objectShader.updateFragmentShaderUniforms(engine.currentCam, engine.currentLight);
     
-    glUseProgram(lightShader);
     glBindVertexArray(lightVAO);
-    generateModelMatrix(lightShader, glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), engine.currentLight.pos);
-    generateViewMatrix(lightShader, engine.currentCam);
-    generateProjectionMatrix(lightShader, glm::radians(engine.currentCam.fov), 800.0f / 600.0f, 0.01f, 100.0f);
+    lightShader.use();
+    lightShader.generateModelMatrix(glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), engine.currentLight.pos);
+    lightShader.generateViewMatrix(engine.currentCam);
+    lightShader.generateProjectionMatrix(glm::radians(engine.currentCam.fov), 800.0f / 600.0f, 0.01f, 100.0f);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
-    glUseProgram(objectShader);
     glBindVertexArray(objectVAO);
-    generateViewMatrix(objectShader, engine.currentCam);
-    generateProjectionMatrix(objectShader, glm::radians(engine.currentCam.fov), 800.0f / 600.0f, 0.01f, 100.0f);
+    objectShader.use();
+    objectShader.generateViewMatrix(engine.currentCam);
+    objectShader.generateProjectionMatrix(glm::radians(engine.currentCam.fov), 800.0f / 600.0f, 0.01f, 100.0f);
     for (int i = 0; i < 10; ++i){
-      generateModelMatrix(objectShader, glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), cubePositions[i]);
+      objectShader.generateModelMatrix(glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), cubePositions[i]);
 
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
@@ -126,10 +126,7 @@ int main() {
   glDeleteBuffers(1, &cube);
 
   glDeleteVertexArrays(1, &objectVAO);
-  glDeleteProgram(objectShader);
-
   glDeleteVertexArrays(1, &lightVAO);
-  glDeleteProgram(lightShader);
   
   return 0;
 }
