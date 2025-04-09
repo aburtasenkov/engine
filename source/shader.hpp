@@ -11,7 +11,7 @@
 #include <fstream>
 #include <sstream>
 
-static unsigned int compileShader(const std::string& filename, GLenum shaderType) {
+unsigned int compileShader(const std::string& filename, GLenum shaderType) {
   unsigned int vShader = glCreateShader(shaderType);
 
   // Get GLSL code in a C-style string
@@ -40,7 +40,7 @@ static unsigned int compileShader(const std::string& filename, GLenum shaderType
   return vShader;
 }
 
-static unsigned int linkShaders(const std::string& vertexShader, const std::string& fragmentShader) {
+unsigned int linkShaders(const std::string& vertexShader, const std::string& fragmentShader) {
   unsigned int program = glCreateProgram();
   
   // Get compiled shaders
@@ -68,7 +68,7 @@ static unsigned int linkShaders(const std::string& vertexShader, const std::stri
   return program;
 }
 
-static void bindMatrix(unsigned int shader, const char * uniformName, glm::mat4 matrix) {
+void bindMatrix(unsigned int shader, const char * uniformName, glm::mat4 matrix) {
   int uniformId = glGetUniformLocation(shader, uniformName);
   if (uniformId == -1) {
     std::cerr << "Error getting " << uniformName << " 's location" << std::endl;
@@ -76,24 +76,24 @@ static void bindMatrix(unsigned int shader, const char * uniformName, glm::mat4 
   glUniformMatrix4fv(uniformId, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-static void generateModelMatrix(unsigned int shader, float angle, glm::vec3 axis, glm::vec3 pos) {
+void generateModelMatrix(unsigned int shader, float angle, glm::vec3 axis, glm::vec3 pos) {
   glm::mat4 model{1.0f};
   model = glm::rotate(model, angle, axis);
   model = glm::translate(model, pos);
   bindMatrix(shader, "model", model);
 }
 
-static void generateViewMatrix(unsigned int shader, Camera& camera) {
+void generateViewMatrix(unsigned int shader, Camera& camera) {
   bindMatrix(shader, "view", camera.getViewMatrix());
 }
 
-static void generateProjectionMatrix(unsigned int shader, float fov, float aspectRatio, float nearPlane, float farPlane) {
+void generateProjectionMatrix(unsigned int shader, float fov, float aspectRatio, float nearPlane, float farPlane) {
   glm::mat4 projection{1.0f};
   projection = glm::perspective(fov, aspectRatio, nearPlane, farPlane);
   bindMatrix(shader, "projection", projection);
 }
 
-static void updateFragmentShaderUniforms(unsigned int shader, Camera& camera, LightSource& light) {
+void updateFragmentShaderUniforms(unsigned int shader, Camera& camera, LightSource& light) {
   int lightPosUniform = glGetUniformLocation(shader, "light.position");
   if (!lightPosUniform) {
     std::cerr << "Error getting light.position uniform location" << std::endl;

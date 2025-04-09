@@ -1,53 +1,10 @@
-#include "source/dependancy/glad.h"
-#include <GLFW/glfw3.h>
-#include "source/dependancy/glm/glm.hpp"
-
-#include "source/camera.hpp"
-#include "source/shader.hpp"
-#include "source/light.hpp"
-#include "source/controls.hpp"
-#include "source/texture.hpp"
-
-extern float fov;
-
-extern Camera currentCam;
-extern LightSource currentLight;
-
-static GLFWwindow * initWindow() {
-  if (!glfwInit()) {
-    std::cerr << "ERROR::GLFW::NOT::INITIALIZED" << std::endl;
-    glfwTerminate();
-    exit(-1);
-  }
-
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-  GLFWwindow * window = glfwCreateWindow(800, 600, "My Window", NULL, NULL);
-  glfwMakeContextCurrent(window);
-  
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-    std::cerr << "ERROR::GLAD::LOADER" << std::endl;
-    exit(-1);
-  }
-
-  glViewport(0, 0, 800, 600);
-  glClearColor(1, 1, 1, 1);
-  glEnable(GL_DEPTH_TEST);
-
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-  glfwSetCursorPosCallback(window, mouseMove_cb);
-  glfwSetScrollCallback(window, mouseScroll_cb);
-
-  return window;
-}
+#include "engine.hpp"
 
 int main() {
-  GLFWwindow * window = initWindow();
+  Engine engine;
 
   float vertices[] = {
-    // positions - 3 // normals - 3 // texture coords - 2
+    // positions - 3              // normals - 3            // texture coords - 2
     -0.5f, -0.5f, -0.5f,          0.0f, 0.0f, -1.0f,        0.0f, 0.0f,
     0.5f, -0.5f, -0.5f,           0.0f, 0.0f, -1.0f,        1.0f, 0.0f,
     0.5f, 0.5f, -0.5f,            0.0f, 0.0f, -1.0f,        1.0f, 1.0f,
@@ -141,33 +98,29 @@ int main() {
     glm::vec3(-1.3f, 1.0f, -1.5f)
   };
 
-  while (!glfwWindowShouldClose(window)) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    currentLight.updatePos(glm::vec3{(float)cos(glfwGetTime()) * 10, 2.0f, (float)sin(glfwGetTime()) * 10});
-    
-    processInput(window, currentCam);
-    updateFragmentShaderUniforms(objectShader, currentCam, currentLight);
+  while (engine.run()) {
+    engine.currentLight.updatePos(glm::vec3{(float)cos(glfwGetTime()) * 10, 2.0f, (float)sin(glfwGetTime()) * 10});
+  
+    updateFragmentShaderUniforms(objectShader, engine.currentCam, engine.currentLight);
     
     glUseProgram(lightShader);
     glBindVertexArray(lightVAO);
-    generateModelMatrix(lightShader, glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), currentLight.pos);
-    generateViewMatrix(lightShader, currentCam);
-    generateProjectionMatrix(lightShader, glm::radians(fov), 800.0f / 600.0f, 0.01f, 100.0f);
+    generateModelMatrix(lightShader, glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), engine.currentLight.pos);
+    generateViewMatrix(lightShader, engine.currentCam);
+    generateProjectionMatrix(lightShader, glm::radians(engine.currentCam.fov), 800.0f / 600.0f, 0.01f, 100.0f);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glUseProgram(objectShader);
     glBindVertexArray(objectVAO);
-    generateViewMatrix(objectShader, currentCam);
-    generateProjectionMatrix(objectShader, glm::radians(fov), 800.0f / 600.0f, 0.01f, 100.0f);
+    generateViewMatrix(objectShader, engine.currentCam);
+    generateProjectionMatrix(objectShader, glm::radians(engine.currentCam.fov), 800.0f / 600.0f, 0.01f, 100.0f);
     for (int i = 0; i < 10; ++i){
       generateModelMatrix(objectShader, glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), cubePositions[i]);
 
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
-
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+    
+    engine.update();
   }
 
   glDeleteBuffers(1, &cube);
@@ -177,8 +130,6 @@ int main() {
 
   glDeleteVertexArrays(1, &lightVAO);
   glDeleteProgram(lightShader);
-
-  glfwTerminate();
   
   return 0;
 }

@@ -22,6 +22,8 @@ class Camera {
     float pitch;
     float yaw;
 
+    float fov = 45.0f;
+
     Camera(glm::vec3 position = ORIGIN, glm::vec3 direction = NEGATIVE_Z_AXIS)
       :pos(position), front(direction), up(WORLD_UP), sensitivity(SENSITIVITY), yaw(YAW), pitch(PITCH)
     {
@@ -91,5 +93,3 @@ class Camera {
       right = glm::normalize(glm::cross(front, WORLD_UP));
     }
 };
-
-Camera currentCam;
