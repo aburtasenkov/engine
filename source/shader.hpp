@@ -89,6 +89,10 @@ class Shader {
       setUniformVec3("light.diffuse", glm::vec3(0.5, 0.5, 0.5));
       setUniformVec3("light.specular", glm::vec3(1.0, 1.0, 1.0));
 
+      setUniformFloat("light.constant", light.constant);
+      setUniformFloat("light.linear", light.linear);
+      setUniformFloat("light.quadratic", light.quadratic);
+
       setUniformVec3("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
       setUniformFloat("material.shininess", 32.0f);
       
