@@ -19,8 +19,7 @@ struct Light {
   // 1 - Directional (usually indexed at 0)
   // 2 - Point
 
-  vec3 position;
-  vec3 direction;
+  vec3 vector;
 
   vec3 ambient;
   vec3 diffuse;
@@ -95,7 +94,7 @@ vec3 specularLight(vec3 fragColor, vec3 normal, vec3 lightDirection, vec3 viewDi
 }
 
 vec3 directionalLight(vec3 fragColor, vec3 normal, Light light) {
-  vec3 lightDirection = normalize(vec3(-1.0, -1.0, -1.0));
+  vec3 lightDirection = normalize(light.vector);
   vec3 viewDirection = normalize(FragPos - CameraPos);
 
   vec3 ambient = ambientLight(fragColor, light.ambient);
@@ -106,14 +105,14 @@ vec3 directionalLight(vec3 fragColor, vec3 normal, Light light) {
 }
 
 vec3 pointLight(vec3 fragColor, vec3 normal, Light light) {
-  vec3 lightDirection = normalize(FragPos - light.position);
+  vec3 lightDirection = normalize(FragPos - light.vector);
   vec3 viewDirection = normalize(FragPos - CameraPos);
 
   vec3 ambient = ambientLight(fragColor, light.ambient);
   vec3 diffuse = diffuseLight(fragColor, normal, lightDirection, light.diffuse);
   vec3 specular = specularLight(fragColor, normal, lightDirection, viewDirection, material.shininess, light.specular);
 
-  float attenuation = lightAttenuation(light.constant, light.linear, light.quadratic, distance(FragPos, light.position));
+  float attenuation = lightAttenuation(light.constant, light.linear, light.quadratic, distance(FragPos, light.vector));
 
   return (ambient + diffuse + specular) * attenuation;
 }
