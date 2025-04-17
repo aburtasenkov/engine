@@ -4,6 +4,8 @@
 #include "dependancy/glm/glm.hpp"
 #include "dependancy/glm/gtc/matrix_transform.hpp"
 
+#include "constants.hpp"
+
 #include <iostream>
 
 enum class CameraMovement {
@@ -30,17 +32,5 @@ class Camera {
     glm::mat4 getViewMatrix() const;
 
   private:
-    static constexpr glm::vec3 NEGATIVE_Z_AXIS = glm::vec3(0.0f, 0.0f, -1.0f);
-    static constexpr glm::vec3 ORIGIN = glm::vec3(0.0f, 0.0f, 0.0f);
-    static constexpr glm::vec3 WORLD_UP = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    static constexpr float YAW = -90.0f;
-    static constexpr float PITCH = 0.0f;
-
-    static constexpr float SENSITIVITY = 0.1f;
-
-    static constexpr float MAX_PITCH = 89.0f;
-    static constexpr float MIN_PITCH = -89.0f;
-
     void updateVectors();
 };
