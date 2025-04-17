@@ -99,8 +99,9 @@ int main() {
   };
 
   // initialize light sources
-  engine.lights[0] = LightSource(LightKind::Point, glm::vec3(10.0f, 10.0f, -10.0f));
-  engine.lights[1] = LightSource(LightKind::Point, glm::vec3(-10.0f, -10.0f, 10.0f));
+  engine.lights[0] = LightSource(LightKind::Directional, glm::vec3(0.0f, -1.0f, 0.0f));
+  engine.lights[1] = LightSource(LightKind::Point, glm::vec3(10.0f, 10.0f, -10.0f));
+  engine.lights[2] = LightSource(LightKind::Point, glm::vec3(-10.0f, -10.0f, 10.0f));
 
   while (engine.run()) {
     objectShader.updateFragmentShaderUniforms(engine.currentCam, engine.lights.get(), MAX_LIGHT_SOURCES);
