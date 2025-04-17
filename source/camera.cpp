@@ -1,6 +1,6 @@
 #include "camera.hpp"
 
-Camera::Camera(glm::vec3 position = ORIGIN, glm::vec3 direction = NEGATIVE_Z_AXIS)
+Camera::Camera(glm::vec3 position, glm::vec3 direction)
   :pos(position), front(direction), up(WORLD_UP), sensitivity(SENSITIVITY), yaw(YAW), pitch(PITCH)
 {
   right = glm::cross(direction, up);

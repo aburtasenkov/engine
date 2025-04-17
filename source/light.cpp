@@ -6,7 +6,7 @@ LightSource::LightSource() {
   color = glm::vec3(1.0f);
 }
 
-LightSource::LightSource(LightKind k, glm::vec3 lightVector = ORIGIN, glm::vec3 lightColor = DEFAULT_COLOR)
+LightSource::LightSource(LightKind k, glm::vec3 lightVector, glm::vec3 lightColor)
   :kind(k), vector(lightVector), color(lightColor)
 {    }
 
