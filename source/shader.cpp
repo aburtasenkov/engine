@@ -88,7 +88,7 @@ void Shader::updateFragmentShaderUniforms(Camera& currentCam, LightSource * arra
 void Shader::updateFragmentShaderLightUniforms(size_t index, LightSource& light) {
   std::string i = std::to_string(index);
   setUniformInteger("light[" + i + "].kind", static_cast<int>(light.kind));
-  setUniformVec3("light[" + i + "].position", light.vector);
+  setUniformVec3("light[" + i + "].vector", light.vector);
   setUniformVec3("light[" + i + "].ambient", glm::vec3(0.1, 0.1, 0.1));
   setUniformVec3("light[" + i + "].diffuse", glm::vec3(0.5, 0.5, 0.5));
   setUniformVec3("light[" + i + "].specular", glm::vec3(1.0, 1.0, 1.0));
