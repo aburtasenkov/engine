@@ -76,11 +76,6 @@ class Engine {
           glViewport(0, 0, width, height);
         }
       );
-
-      // initialize lightSources array
-      for (int i = 0; i < MAX_LIGHT_SOURCES; ++i) {
-        lights[i] = LightSource(LightKind::Undefined);
-      }
     }
 
     ~Engine() {
