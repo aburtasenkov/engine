@@ -8,8 +8,11 @@
 #include "source/shader.hpp"
 #include "source/light.hpp"
 #include "source/texture.hpp"
+#include "source/constants.hpp"
 
 #include <unordered_map>
+#include <array>
+#include <memory>
 
 static void mouseMove_cb(GLFWwindow * window, double xPos, double yPos);
 static void mouseScroll_cb(GLFWwindow * window, double offsetX, double offsetY);
@@ -29,15 +32,15 @@ class Engine {
     GLFWwindow * window;
 
     Camera currentCam;
-    LightSource currentLight;
+    std::unique_ptr<LightSource[]> lights;
 
     Variables variables;
 
     Engine()
-      :currentCam(),
-      currentLight()
+      :currentCam()
     {
       instance = this;
+      lights = std::make_unique<LightSource[]>(MAX_LIGHT_SOURCES); 
       if (!glfwInit()) {
         std::cerr << "ERROR::GLFW::NOT::INITIALIZED" << std::endl;
         glfwTerminate();
@@ -73,6 +76,11 @@ class Engine {
           glViewport(0, 0, width, height);
         }
       );
+
+      // initialize lightSources array
+      for (int i = 0; i < MAX_LIGHT_SOURCES; ++i) {
+        lights[i] = LightSource(LightKind::Undefined);
+      }
     }
 
     ~Engine() {

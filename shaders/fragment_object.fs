@@ -4,6 +4,8 @@ in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoord;
 
+const int MAX_LIGHT_SOURCES = 8;
+
 struct Material {
   sampler2D diffuse;
   vec3 specular;
@@ -11,7 +13,14 @@ struct Material {
 };
 
 struct Light {
+  int kind;
+  // kind defines what kind of light source it is
+  // 0 - Undefined --> pass
+  // 1 - Directional (usually indexed at 0)
+  // 2 - Point
+
   vec3 position;
+  vec3 direction;
 
   vec3 ambient;
   vec3 diffuse;
@@ -23,7 +32,7 @@ struct Light {
 };
 
 uniform Material material;
-uniform Light light;
+uniform Light light[MAX_LIGHT_SOURCES];
 
 uniform vec3 CameraPos;
 
@@ -42,10 +51,15 @@ void main() {
   vec3 normal = normalize(Normal);
   vec3 fragColor = vec3(texture(material.diffuse, TexCoord));
 
-  vec3 directional = directionalLight(fragColor, normal, light);
-  vec3 point = pointLight(fragColor, normal, light);
+  vec3 result = vec3(0.0);
 
-  vec3 result = point + directional;
+  for (int i = 0; i < MAX_LIGHT_SOURCES; ++i) {
+    vec3 lightEffect = vec3(0.0);
+    if (light[i].kind == 0) continue;
+    if (light[i].kind == 1) lightEffect = directionalLight(fragColor, normal, light[i]);
+    if (light[i].kind == 2) lightEffect = pointLight(fragColor, normal, light[i]);
+    result += lightEffect;
+  }
 
   Color = vec4(result, 1.0);
 }

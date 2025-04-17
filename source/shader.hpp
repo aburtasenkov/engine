@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <type_traits>
 
 class Shader {
   public:
@@ -83,20 +84,37 @@ class Shader {
       glUniform1f(uniformLocation, value);
     }
 
-    void updateFragmentShaderUniforms(Camera& camera, LightSource& light) {
-      setUniformVec3("light.position", light.pos);
-      setUniformVec3("light.ambient", glm::vec3(0.1, 0.1, 0.1));
-      setUniformVec3("light.diffuse", glm::vec3(0.5, 0.5, 0.5));
-      setUniformVec3("light.specular", glm::vec3(1.0, 1.0, 1.0));
+    void setUniformInteger(std::string uniform, int value) {
+      int uniformLocation = glGetUniformLocation(shaderID, uniform.c_str());
+      if (uniformLocation == -1) {
+        std::cerr << "Error getting " << uniform << " uniform location" << std::endl; 
+      }
+      glUniform1i(uniformLocation, value);
+    }
 
-      setUniformFloat("light.constant", light.constant);
-      setUniformFloat("light.linear", light.linear);
-      setUniformFloat("light.quadratic", light.quadratic);
+    void updateFragmentShaderUniforms(Camera& currentCam, LightSource * array, size_t sz) {
+      for (int i = 0; i < sz; ++i) {
+        if (array[i].kind != LightKind::Undefined) updateFragmentShaderLightUniforms(i, array[i]);
+        std::cout << static_cast<int>(array[i].kind) << "\n";
+      }
 
       setUniformVec3("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
       setUniformFloat("material.shininess", 32.0f);
       
-      setUniformVec3("CameraPos", camera.pos);
+      setUniformVec3("CameraPos", currentCam.pos);
+    }
+
+    void updateFragmentShaderLightUniforms(size_t index, LightSource& light) {
+      std::string i = std::to_string(index);
+      setUniformInteger("light[" + i + "].kind", static_cast<int>(light.kind));
+      setUniformVec3("light[" + i + "].position", light.vector);
+      setUniformVec3("light[" + i + "].ambient", glm::vec3(0.1, 0.1, 0.1));
+      setUniformVec3("light[" + i + "].diffuse", glm::vec3(0.5, 0.5, 0.5));
+      setUniformVec3("light[" + i + "].specular", glm::vec3(1.0, 1.0, 1.0));
+
+      setUniformFloat("light[" + i + "].constant", light.constant);
+      setUniformFloat("light[" + i + "].linear", light.linear);
+      setUniformFloat("light[" + i + "].quadratic", light.quadratic);
     }
 
   private:

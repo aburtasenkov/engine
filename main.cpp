@@ -98,17 +98,24 @@ int main() {
     glm::vec3(-1.3f, 1.0f, -1.5f)
   };
 
+  // initialize light sources
+  engine.lights[0] = LightSource(LightKind::Point, glm::vec3(10.0f, 10.0f, -10.0f));
+  engine.lights[1] = LightSource(LightKind::Point, glm::vec3(-10.0f, -10.0f, 10.0f));
+
   while (engine.run()) {
-    engine.currentLight.updatePos(glm::vec3{(float)cos(glfwGetTime()) * 10, 2.0f, (float)sin(glfwGetTime()) * 10});
-  
-    objectShader.updateFragmentShaderUniforms(engine.currentCam, engine.currentLight);
+    objectShader.updateFragmentShaderUniforms(engine.currentCam, engine.lights.get(), MAX_LIGHT_SOURCES);
     
     glBindVertexArray(lightVAO);
     lightShader.use();
-    lightShader.generateModelMatrix(glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), engine.currentLight.pos);
     lightShader.generateViewMatrix(engine.currentCam);
     lightShader.generateProjectionMatrix(glm::radians(engine.currentCam.fov), 800.0f / 600.0f, 0.01f, 100.0f);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    for (size_t i = 0; i < MAX_LIGHT_SOURCES; ++i) {
+      LightSource& currentLight = engine.lights[i];
+      if (currentLight.kind == LightKind::Undefined) continue;
+      if (currentLight.kind == LightKind::Directional) continue;
+      lightShader.generateModelMatrix(glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), currentLight.vector);
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 
     glBindVertexArray(objectVAO);
     objectShader.use();
